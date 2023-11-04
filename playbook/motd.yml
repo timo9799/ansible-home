@@ -1,0 +1,60 @@
+---
+- hosts: all
+  become: yes
+  tasks:
+    - name: "Check if figlet is installed"
+      package_facts:
+        manager: "auto"
+    - name: "Figlet result"
+      debug:
+         msg: "figlet found"
+      when: "'figlet' in ansible_facts.packages"
+    - name: "Figlet result"
+      debug:
+         msg: "figlet NOT found"
+      when: "'figlet' not in ansible_facts.packages"
+    - name: "Installation figlet si pas trouvé"
+      when: "'figlet' not in ansible_facts.packages"
+      ansible.builtin.apt:
+        name: figlet
+        state: present
+    - name: "Check if lsb-release is installed"
+      package_facts:
+        manager: "auto"
+    - name: "lsb-release result"
+      debug:
+         msg: "lsb-release found"
+      when: "'lsb-release' in ansible_facts.packages"
+    - name: "lsb-release result"
+      debug:
+         msg: "lsb-release NOT found"
+      when: "'lsb-release' not in ansible_facts.packages"
+    - name: "Installation lsb-release si pas trouvé"
+      when: "'lsb-release' not in ansible_facts.packages"
+      ansible.builtin.apt:
+        name: lsb-release
+        state: present
+    - name: "Creation repertoire motd si il existe pas"
+      ansible.builtin.file:
+        path: /etc/update-motd.d
+        state: directory
+        mode: '0755'
+    - name: "Copie des fichiers motds"
+      ansible.builtin.copy:
+        src: /home/tim/ansible/git/motd-ressource/
+        dest: /etc/update-motd.d/
+        owner: root
+        group: root
+        mode: '0755'
+    - name: "Creation lien symbolique"
+      ansible.builtin.file:
+        src: /var/run/motd.dynamic.new
+        dest: /etc/motd
+        owner: root
+        group: root
+        state: link
+        force: yes
+    - name: "Suppression fichier 10-uname"
+      ansible.builtin.file:
+        path: /etc/update-motd.d/10-uname
+        state: absent

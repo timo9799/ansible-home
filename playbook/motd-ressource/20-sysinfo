@@ -1,0 +1,21 @@
+#!/bin/bash
+proc=`(echo $(more /proc/cpuinfo | grep processor | wc -l ) "x" $(more /proc/cpuinfo | grep 'model name' | uniq |awk -F":"  '{print $2}') )`
+memfree=`cat /proc/meminfo | grep MemFree | awk {'print $2'}`
+memtotal=`cat /proc/meminfo | grep MemTotal | awk {'print $2'}`
+uptime=`uptime -p`
+addrip=`hostname -I | cut -d " " -f1`
+# Récupérer le loadavg
+read one five fifteen rest < /proc/loadavg
+
+# Affichage des variables
+printf "  Processeur : $proc"
+printf "\n"
+printf "  Charge CPU : $one (1min) / $five (5min) / $fifteen (15min)"
+printf "\n"
+printf "  Adresse IP : $addrip"
+printf "\n"
+printf "  RAM : $(($memfree/1024))MB libres / $(($memtotal/1024))MB"
+printf "\n"
+printf "  Uptime : $uptime"
+printf "\n"
+printf "\n"
